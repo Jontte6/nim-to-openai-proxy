@@ -28,7 +28,7 @@ const MODEL_MAPPING = {
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
   'gpt-4-flash': 'deepseek-ai/deepseek-v4-flash',
   'glm-5.1': 'z-ai/glm-5.1',
-  'glm-4.7': 'z-ai/glm-4.7',
+  'glm-4.7': 'z-ai/glm4.7',
   'mistral': 'mistralai/devstral-2-123b-instruct-2512',
   'mistral-turbo': 'mistralai/magistral-small-2506',
   'mistral-pro': 'mistralai/mistral-small-4-119b-2603',
