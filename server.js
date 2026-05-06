@@ -1,4 +1,4 @@
-// server.js - OpenAI to NVIDIA NIM API Proxy (STABLE)
+// server.js - OpenAI to NVIDIA NIM API Proxy (FIXED)
 
 const express = require('express');
 const cors = require('cors');
@@ -14,6 +14,7 @@ app.use(express.json());
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
+const SHOW_REASONING = false;
 const ENABLE_THINKING_MODE = false;
 
 // Model mapping
@@ -62,35 +63,16 @@ app.post('/v1/chat/completions', async (req, res) => {
   try {
     const { model, messages, temperature, max_tokens, stream } = req.body;
 
-    const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
+    let nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
-    // 🔧 CLEAN MESSAGES (prevents 400 errors)
-    const cleanMessages = (messages || [])
-      .filter(m => m && m.role && m.content)
-      .map(m => ({
-        role: m.role,
-        content: String(m.content)
-      }));
-
-    // 🔧 SAFE REQUEST BODY
     const nimRequest = {
       model: nimModel,
-      messages: cleanMessages,
-      temperature: temperature ?? 0.8,
-      max_tokens: Math.min(max_tokens ?? 1024, 4096),
-      stream: stream ?? false
+      messages,
+      temperature: temperature || 0.8,
+      max_tokens: max_tokens || 8192,
+      extra_body: ENABLE_THINKING_MODE ? { chat_template_kwargs: { thinking: true } } : undefined,
+      stream: stream || false
     };
-
-    // 🔧 ONLY ADD THIS IF ENABLED
-    if (ENABLE_THINKING_MODE) {
-      nimRequest.extra_body = {
-        chat_template_kwargs: {
-          enable_thinking: true
-        }
-      };
-    }
-
-    console.log("NIM REQUEST:", JSON.stringify(nimRequest));
 
     const response = await axios.post(
       `${NIM_API_BASE}/chat/completions`,
@@ -105,7 +87,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       }
     );
 
-    // ===== STREAM =====
+    // ================= STREAM =================
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
@@ -121,7 +103,7 @@ app.post('/v1/chat/completions', async (req, res) => {
           return;
         }
 
-        res.write(text);
+        res.write(text + '\n\n');
       });
 
       response.data.on('end', () => {
@@ -134,20 +116,21 @@ app.post('/v1/chat/completions', async (req, res) => {
         res.end();
       });
 
-    // ===== NON-STREAM =====
+    // ================= NON-STREAM =================
     } else {
+
       const openaiResponse = {
         id: `chatcmpl-${Date.now()}`,
         object: 'chat.completion',
         created: Math.floor(Date.now() / 1000),
-        model: model,
+        model: nimModel,
         choices: (response.data.choices || []).map((choice, i) => ({
           index: i,
           message: {
             role: choice.message?.role || 'assistant',
             content: choice.message?.content ?? ''
           },
-          finish_reason: choice.finish_reason || 'stop'
+          finish_reason: 'stop'
         })),
         usage: response.data.usage || {
           prompt_tokens: 0,
@@ -156,16 +139,19 @@ app.post('/v1/chat/completions', async (req, res) => {
         }
       };
 
+      console.log("Sending response:", JSON.stringify(openaiResponse).slice(0, 200));
+
       res.setHeader('Content-Type', 'application/json');
-      res.status(200).json(openaiResponse);
+      res.setHeader('Connection', 'close');
+      res.status(200).send(JSON.stringify(openaiResponse));
     }
 
   } catch (error) {
-    console.error('Proxy error:', error.response?.data || error.message);
+    console.error('Proxy error:', error.message);
 
     res.status(error.response?.status || 500).json({
       error: {
-        message: error.response?.data?.error?.message || error.message || 'Internal server error',
+        message: error.message || 'Internal server error',
         type: 'invalid_request_error',
         code: error.response?.status || 500
       }
