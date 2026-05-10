@@ -38,8 +38,8 @@ const MODEL_MAPPING = {
 
 // Fallback chain
 const FALLBACK_MODELS = [
-  'meta/llama-3.1-70b-instruct',
-  'meta/llama-3.1-8b-instruct'
+  'mistralai/mistral-medium-3.5-128b',
+  'mistralai/mistral-small-4-119b-2603'
 ];
 
 // Health
