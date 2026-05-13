@@ -75,6 +75,8 @@ The client never sees your NVAPI key, which is why we don't use it as the auth, 
 | Very slow responses | Using `mistral` (675B) or Chinese models during peak hours | Switch to `gemini-pro` or `mistral-turbo` |
 | Filter interrupts RP | Using Chinese-hosted model for mature content | Use `mistral`, `gemini-pro`, or `claude-3-opus` |
 | 404 on `/v1/chat/completions` | Auth mismatch | Verify `CLIENT_AUTH_KEY` matches between Railway and client |
+| "Failed to fetch (unk)" / "A network error occurred" | JanitorAI cached old proxy config after changing URL or model | **Reload the page** — changes don't apply until refresh |
+
 
 ## Contributing
 
