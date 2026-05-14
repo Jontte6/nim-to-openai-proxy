@@ -118,5 +118,5 @@ I am not a professional developer. This project was built with help from AI tool
 
 ## Support my sanity during deprecation season
 
-ko-fi.com/jontte6
+[ko-fi.com/jontte6](https://ko-fi.com/jontte6)
 You dont need to support me but it helps me continue to maintain my code which is already held together with hopes and dreams.
