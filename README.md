@@ -76,20 +76,18 @@ You can check the status of your proxy with the "/health" endpoint, and a list o
 Your actual chat endpoint is in "/v1/chat/completions", and is the one you use in Janitor AI/SillyTavern or whatever platform you use.
 The client never sees your NVAPI key, which is why we don't use it as the auth, since the whole point of the auth configuration is so that your NVAPI key is not stored on your client.
 
-### Optional: Enable Reasoning or Thinking Mode
+### Optional Environment Variables
 
-After deploying, you can optionally enable reasoning display or thinking mode through environment variables. These are off by default.
-
-In your Railway deployment, go to the **Variables** tab and add:
+After deploying, you can set these in Railway's **Variables** tab:
 
 | Variable | Value | Effect |
 |---|---|---|
 | `SHOW_REASONING` | `true` | Shows model reasoning in `<thinking>` tags |
-| `ENABLE_THINKING_MODE` | `true` | Sends thinking parameters to models that support it |
+| `ENABLE_THINKING_MODE` | `true` | Sends thinking parameters to supported models |
+| `DISCORD_WEBHOOK_URL` | Webhook URL | Alerts you when models fail validation |
+| `SKIP_VALIDATION` | `true` | Disables startup model checks |
 
-Set to `false` or remove the variable to disable. No redeploy needed — Railway picks up env var changes automatically (may take ~30 seconds).
-
-**Note:** `SHOW_REASONING` requires your client to render the tags. JanitorAI and SillyTavern handle them differently. Test before relying on it in long sessions.
+Set to `false` or remove to disable. Changes apply without redeploying.
 
 ### Troubleshooting
 
