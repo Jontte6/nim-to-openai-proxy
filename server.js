@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   const auth = req.headers.authorization?.trim();
   const expected = `Bearer ${process.env.CLIENT_AUTH_KEY}`;
 
-  if (!auth || auth.localeCompare(expected) !== 0) {
+  if (!auth || auth !== expected) {
     return res.status(403).json({
       error: {
         message: 'Forbidden',
