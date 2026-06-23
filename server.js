@@ -251,12 +251,12 @@ function extractThinkingContent(message) {
   if (!message) return { content: '', reasoning: null, isPromoted: false };
   
   let content = message.content || '';
-  let reasoning = message.reasoning_content || null;
+  // NIM uses 'reasoning' for some models, 'reasoning_content' for others
+  let reasoning = message.reasoning_content || message.reasoning || null;
   let isPromoted = false;
   
-  // If NIM didn't populate reasoning_content, try to extract from content
+  // If NIM didn't populate reasoning fields, try to extract from content
   if (!reasoning && content) {
-    // Check for explicit <thinking> tags
     const thinkMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/);
     if (thinkMatch) {
       reasoning = thinkMatch[1].trim();
@@ -264,7 +264,6 @@ function extractThinkingContent(message) {
     }
   }
   
-  // If content is empty but reasoning exists, promote reasoning to content
   if (!content && reasoning) {
     content = reasoning;
     reasoning = null;
@@ -273,6 +272,7 @@ function extractThinkingContent(message) {
   
   return { content, reasoning, isPromoted };
 }
+
 
 
 // PATCH: ─── Helper: Format content with reasoning for display ─────────────
