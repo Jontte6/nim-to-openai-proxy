@@ -612,7 +612,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       res.json(openaiResponse);
     }
 
-  } catch (error) {
+    } catch (error) {
     console.error('[PROXY] Fatal error:', error.message);
     console.error('[PROXY] NIM response:', error.response?.data);
 
@@ -635,7 +635,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       res.end();
     }
 
-    if (upstreamStream && !upstreamStream.destroyed) 
+    if (upstreamStream && !upstreamStream.destroyed) {
       upstreamStream.destroy();
     }
   }
@@ -658,9 +658,9 @@ app.listen(PORT, () => {
   console.log(`[PROXY] Max tokens limit: ${MAX_TOKENS_LIMIT}`);
   console.log(`[PROXY] Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'disabled'}`);
   console.log(`[PROXY] Reasoning display: ${SHOW_REASONING ? 'ENABLED' : 'disabled'}`);
+  console.log(`[PROXY] Reasoning effort: ${REASONING_EFFORT}`);
   
   validateModels().catch(err => {
     console.error('[VALIDATION] Startup check failed:', err.message);
   });
 });
-  
